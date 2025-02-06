@@ -1,6 +1,10 @@
 import 'package:expenses_manager/core/app_router/app_router.dart';
+import 'package:expenses_manager/features/auth/data/repo/auth_repo_impl.dart';
+import 'package:expenses_manager/features/auth/presentation/view_model/auth_cubit/auth_cubit.dart';
+import 'package:expenses_manager/features/auth/presentation/view_model/familycreation_cubit/familycreation_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'firebase_options.dart';
 
@@ -17,10 +21,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter().routs,
-      theme: ThemeData.dark(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AuthCubit(AuthRepoImpl()),
+        ),
+        BlocProvider(
+          create: (context) => FamilycreationCubit(AuthRepoImpl()),
+        ),
+      ],
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        routerConfig: AppRouter().routs,
+        theme: ThemeData.dark(),
+      ),
     );
   }
 }

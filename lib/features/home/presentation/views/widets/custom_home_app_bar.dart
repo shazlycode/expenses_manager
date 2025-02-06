@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/utils/style.dart';
 
 class CustomHomeAppBar extends StatelessWidget {
-  const CustomHomeAppBar({super.key});
+  const CustomHomeAppBar({super.key, required this.familyData});
+  final Map<String, dynamic> familyData;
 
   @override
   Widget build(BuildContext context) {
