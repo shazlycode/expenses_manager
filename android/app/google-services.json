@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672964775916",
+    "project_id": "expensesmanager-946b7",
+    "storage_bucket": "expensesmanager-946b7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672964775916:android:eb92c7c7b7472d54267ac9",
+        "android_client_info": {
+          "package_name": "com.shazlycode.expenses_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMJYFaFa0WJIOFsyotYhEej9LyBCXxcfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
