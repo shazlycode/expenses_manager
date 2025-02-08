@@ -4,7 +4,8 @@ import '../../../../../core/utils/style.dart';
 
 class CustomHomeAppBar extends StatelessWidget {
   const CustomHomeAppBar({super.key, required this.familyData});
-  final Map<String, dynamic> familyData;
+  // final Map<String, dynamic> familyData;
+  final String familyData;
 
   @override
   Widget build(BuildContext context) {

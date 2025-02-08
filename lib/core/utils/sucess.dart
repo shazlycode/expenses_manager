@@ -9,3 +9,13 @@ abstract class Success {
 class FirebaseAuthSuccess extends Success {
   FirebaseAuthSuccess({required super.userCredential});
 }
+
+abstract class AddSuccess {
+  final String message;
+
+  AddSuccess({required this.message});
+}
+
+class AddExpenseSuccess extends AddSuccess {
+  AddExpenseSuccess({required super.message});
+}

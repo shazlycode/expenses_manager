@@ -7,9 +7,15 @@ final class FamilycreationInitial extends FamilycreationState {}
 final class FamilycreationLoading extends FamilycreationState {}
 
 final class FamilycreationSuccess extends FamilycreationState {
-  final String familyName, familyCode;
+  final String familyId;
 
-  FamilycreationSuccess({required this.familyName, required this.familyCode});
+  // familyCode, familyName
+
+  FamilycreationSuccess(
+      {
+      //   required this.familyName,
+      // required this.familyCode,
+      required this.familyId});
 }
 
 final class FamilycreationFalure extends FamilycreationState {

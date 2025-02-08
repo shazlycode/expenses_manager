@@ -1,10 +1,13 @@
+import 'package:expenses_manager/features/home/presentation/view_model/cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/utils/style.dart';
 
 class BudgetExpensesCard extends StatefulWidget {
   const BudgetExpensesCard({super.key, required this.familyData});
-  final Map<String, dynamic> familyData;
+  // final Map<String, dynamic> familyData;
+  final String familyData;
 
   @override
   State<BudgetExpensesCard> createState() => _BudgetExpensesCardState();
@@ -16,6 +19,23 @@ class _BudgetExpensesCardState extends State<BudgetExpensesCard> {
     super.initState();
   }
 
+  double getTotalExpenses(HomeSuccess state) {
+    Map<String, dynamic> cat = {};
+    double total = 0;
+    for (var expense in state.expenses) {
+      if (cat.keys.contains(expense.category)) {
+        cat[expense.category!] = cat[expense.category] + expense.amount;
+      } else {
+        cat[expense.category!] = expense.amount;
+      }
+    }
+    cat.entries.map((e) {
+      total += e.value;
+    });
+
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -23,7 +43,7 @@ class _BudgetExpensesCardState extends State<BudgetExpensesCard> {
     return SliverToBoxAdapter(
       child: Column(
         children: [
-          Text(widget.familyData['familyName']),
+          Text(widget.familyData),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -40,9 +60,9 @@ class _BudgetExpensesCardState extends State<BudgetExpensesCard> {
                         style: kStyle1.copyWith(color: (Colors.blue[400])),
                       ),
                       Text(
-                        "4500",
-                        style: kStyle2,
-                      )
+                        "5000 \$",
+                        style: kStyle2.copyWith(color: (Colors.blue[400])),
+                      ),
                     ],
                   ),
                 ),
@@ -59,9 +79,22 @@ class _BudgetExpensesCardState extends State<BudgetExpensesCard> {
                         "Expenses",
                         style: kStyle1.copyWith(color: (Colors.blue[400])),
                       ),
-                      Text(
-                        "total",
-                        style: kStyle2,
+                      BlocBuilder<HomeCubit, HomeState>(
+                        builder: (context, state) {
+                          if (state is HomeSuccess) {
+                            double totalExpenses = getTotalExpenses(state);
+
+                            return Text(
+                              "$totalExpenses \$",
+                              style: kStyle2,
+                            );
+                          } else if (state is HomeLoading) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return Text("");
+                        },
                       )
                     ],
                   ),

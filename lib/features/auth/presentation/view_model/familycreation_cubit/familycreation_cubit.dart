@@ -1,3 +1,4 @@
+import 'package:expenses_manager/core/utils/family_creation_success.dart';
 import 'package:expenses_manager/features/auth/data/repo/auth_repo_impl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,7 +17,9 @@ class FamilycreationCubit extends Cubit<FamilycreationState> {
       emit(FamilycreationFalure(errorMessage: failure.errorMessage!));
     }, (family) {
       emit(FamilycreationSuccess(
-          familyName: family.familyName, familyCode: family.familyCode));
+          // familyName: family.familyName,
+          // familyCode: family.familyCode,
+          familyId: family.familyId));
     });
   }
 }

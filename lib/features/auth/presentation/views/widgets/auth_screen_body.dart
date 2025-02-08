@@ -89,6 +89,77 @@ class _AuthScreenBodyState extends State<AuthScreenBody> {
     });
   }
 
+  Future<void> joinFamily() async {
+    if (!familyCodeFormKey.currentState!.validate()) return;
+
+    try {
+      var snapshot =
+          await FirebaseFirestore.instance.collection("families").get();
+
+      var family = snapshot.docs.firstWhere(
+        (doc) => doc['familyCode'] == familyCodeController.text,
+        orElse: () => throw Exception("Family Profile Not Found"),
+      );
+
+      if (context.mounted) {
+        // Map<String, dynamic> familyInfo = {
+        //   'familyName': family['familyName'],
+        //   'familyCode': family['familyCode'],
+        //   'familyId': family.id,
+        // };
+        String familyInfo = family.id;
+
+        context.go(kHomeScreen, extra: familyInfo);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(e.toString()),
+          ),
+        );
+      }
+    }
+  }
+
+  // joinFamily() async {
+  //   try {
+  //     await FirebaseFirestore.instance
+  //         .collection("families")
+  //         .get()
+  //         .then((snapshot) {
+  //       QueryDocumentSnapshot<Map<String, dynamic>>? family =
+  //           snapshot.docs.where((doc) {
+  //         return doc.data()['familyCode'] == familyCodeController.text;
+  //       }).first;
+  //       if (family.exists && context.mounted) {
+  //         context.go(kHomeScreen, extra: {
+  //           'familyName': family['familyName'],
+  //           'familyCode': family['familyCode'],
+  //           'familyId': family.id,
+  //         });
+  //       } else {
+  //         if (context.mounted) {
+  //           showDialog(
+  //               context: context,
+  //               builder: (context) => AlertDialog(
+  //                     content: Text("Family Profile Not Found"),
+  //                   ));
+  //         }
+  //       }
+  //     });
+  //   } catch (e) {
+  //     if (context.mounted) {
+  //       showDialog(
+  //           context: context,
+  //           builder: (context) => AlertDialog(
+  //                 content: Text(e.toString()),
+  //               ));
+  //     }
+  //   }
+  // }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -120,10 +191,16 @@ class _AuthScreenBodyState extends State<AuthScreenBody> {
                   return BlocConsumer<FamilycreationCubit, FamilycreationState>(
                     listener: (context, state) {
                       if (state is FamilycreationSuccess) {
-                        context.go(kHomeScreen, extra: {
-                          'familyName': state.familyName,
-                          'familyCode': state.familyCode
-                        });
+                        // Map<String, dynamic> familyInfo = {
+                        // 'familyName': state.familyName,
+                        // 'familyCode': state.familyCode,
+                        //   'familyId': state.familyId,
+                        // };
+                        String familyInfo = state.familyId;
+                        context.go(kHomeScreen, extra: familyInfo);
+                        print(familyInfo);
+
+                        context.go(kHomeScreen, extra: familyInfo);
                       } else if (state is FamilycreationFalure) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(state.errorMessage),
@@ -151,43 +228,7 @@ class _AuthScreenBodyState extends State<AuthScreenBody> {
                               ),
                               ElevatedButton(
                                   onPressed: () async {
-                                    try {
-                                      await FirebaseFirestore.instance
-                                          .collection("families")
-                                          .get()
-                                          .then((snapshot) {
-                                        QueryDocumentSnapshot<
-                                                Map<String, dynamic>>? family =
-                                            snapshot.docs.where((doc) {
-                                          return doc.data()['familyCode'] ==
-                                              familyCodeController.text;
-                                        }).first;
-                                        if (family.exists || context.mounted) {
-                                          context.go(kHomeScreen, extra: {
-                                            'familyName': family['familyName'],
-                                            'familyCode': family['familyCode']
-                                          });
-                                        } else {
-                                          if (context.mounted) {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) =>
-                                                    AlertDialog(
-                                                      content: Text(
-                                                          "Family Profile Not Found"),
-                                                    ));
-                                          }
-                                        }
-                                      });
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                                  content: Text(e.toString()),
-                                                ));
-                                      }
-                                    }
+                                    joinFamily();
                                   },
                                   child: Text("Join Family")),
                               SizedBox(height: 30),

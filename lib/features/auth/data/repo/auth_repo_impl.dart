@@ -71,7 +71,8 @@ class AuthRepoImpl implements AuthRepo {
         'roll': "admin"
       });
       return right(FamilyProfileCreationSuccess(
-          familyCode: familyCode, familyName: familyName));
+          // familyCode: familyCode, familyName: familyName,
+          familyId: family.id));
     } catch (e) {
       return left(FirebaseAuthFailure(errorMessage: e.toString()));
     }

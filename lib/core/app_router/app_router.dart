@@ -10,9 +10,12 @@ class AppRouter {
     GoRoute(path: kSpalshScreen, builder: (contesx, state) => SplashScreen()),
     GoRoute(path: kAuthScreen, builder: (contesx, state) => AuthScreen()),
     GoRoute(
-      path: kHomeScreen,
-      builder: (context, state) =>
-          HomeScreen(familyData: (state.extra as Map<String, dynamic>)),
-    )
+        path: kHomeScreen,
+        builder: (context, state) {
+          String familyData = state.extra as String? ?? '';
+          //as Map<String, dynamic>;
+
+          return HomeScreen(familyData: familyData);
+        })
   ]);
 }
