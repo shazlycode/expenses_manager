@@ -1,0 +1,9 @@
+flutter_native_splash:
+  color: "#ffffff" # Background color of the splash screen
+  image: assets/images/logo.png # Path to your splash screen image
+  android: true # Enable splash screen for Android
+  ios: true # Enable splash screen for iOS
+  web: false # Disable splash screen for web
+  android_gravity: center # Position of the image on Android
+  ios_content_mode: center # Position of the image on iOS
+  fullscreen: true # Enable fullscreen mode

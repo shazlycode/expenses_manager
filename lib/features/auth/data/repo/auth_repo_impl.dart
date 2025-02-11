@@ -18,7 +18,7 @@ class AuthRepoImpl implements AuthRepo {
       final UserCredential credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
 
-      return right(FirebaseAuthSuccess(userCredential: credential));
+      return right(FirebaseAuthSuccess(user: credential.user!));
     } on FirebaseAuthException catch (e) {
       return left(FirebaseAuthFailure.fromFirebaseException(e));
     } on HttpException catch (e) {
@@ -34,7 +34,7 @@ class AuthRepoImpl implements AuthRepo {
     try {
       final UserCredential credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-      return right(FirebaseAuthSuccess(userCredential: credential));
+      return right(FirebaseAuthSuccess(user: credential.user!));
     } on FirebaseAuthException catch (e) {
       return left(FirebaseAuthFailure(errorMessage: e.message));
     } on HttpException catch (e) {
@@ -71,8 +71,7 @@ class AuthRepoImpl implements AuthRepo {
         'roll': "admin"
       });
       return right(FamilyProfileCreationSuccess(
-          // familyCode: familyCode, familyName: familyName,
-          familyId: family.id));
+          familyCode: familyCode, familyName: familyName, familyId: family.id));
     } catch (e) {
       return left(FirebaseAuthFailure(errorMessage: e.toString()));
     }

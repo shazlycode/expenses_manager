@@ -1,3 +1,4 @@
+import 'package:expenses_manager/core/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -17,7 +18,10 @@ class SplashScreenBody extends StatelessWidget {
     });
     return SafeArea(
         child: Center(
-      child: Text("SplashScreen"),
+      child: Image.asset(
+        kAppLogo,
+        fit: BoxFit.fill,
+      ),
     ));
   }
 }

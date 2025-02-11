@@ -12,10 +12,41 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> fetchExpenses({required String familyId}) async {
     emit(HomeLoading());
     final result = await homeRepoImp.fetchExpenses(familyId: familyId);
+
     result.fold((failure) {
       emit(HomeFailure(errorMessage: failure.errorMessage!));
     }, (expenses) {
-      emit(HomeSuccess(expenses: expenses.expenses));
+      // 🟢 حساب إجمالي المصروفات لكل فئة
+      Map<String, double> categoryAmounts = {};
+
+      for (var expense in expenses.expenses) {
+        categoryAmounts[expense.category!] =
+            (categoryAmounts[expense.category] ?? 0) + expense.amount;
+      }
+
+      // 🟢 حساب إجمالي المصروفات بطريقة أفضل باستخدام fold
+      // double totalAmount =
+      //     expenses.expenses.fold(0, (sum, expense) => sum + expense.amount!);
+      double totalAmount = expenses.expenses
+          .fold(0.0, (initialValue, ex) => initialValue + ex.amount);
+      emit(HomeSuccess(
+        totalAmount: totalAmount,
+        categoryAmounts: categoryAmounts,
+        expenses: expenses.expenses,
+      ));
+    });
+  }
+
+  Future<void> deleteExpense(
+      {required String familyId, required String expenseId}) async {
+    emit(DeleteLoading());
+    final result = await homeRepoImp.deleteExpense(
+        familyId: familyId, expenseId: expenseId);
+    result.fold((failure) {
+      emit(DeleteFailure(errorMessage: failure.errorMessage));
+    }, (success) async {
+      // Fetch the updated list of expenses after deletion
+      // await fetchExpenses(familyId: familyId);
     });
   }
 }

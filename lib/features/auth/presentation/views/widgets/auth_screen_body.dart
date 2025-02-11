@@ -25,13 +25,7 @@ class _AuthScreenBodyState extends State<AuthScreenBody> {
   @override
   void initState() {
     authType = AuthType.login;
-    // FirebaseAuth.instance.authStateChanges().listen((User? user) {
-    //   if (user == null) {
-    //     print('User is currently signed out!');
-    //   } else {
-    //     context.go(kHomeScreen);
-    //   }
-    // });
+
     super.initState();
   }
 
@@ -55,23 +49,29 @@ class _AuthScreenBodyState extends State<AuthScreenBody> {
     );
   }
 
-  auth() async {
+  Future<void> auth() async {
     if (!formKey.currentState!.validate()) {
       return;
-    } else if (authType == AuthType.login) {
-      setState(() {
-        isLoading = true;
-      });
-
-      await context.read<AuthCubit>().login(
-          email: emailController.text, password: passwordController.text);
-    } else {
-      await context.read<AuthCubit>().register(
-          email: emailController.text, password: passwordController.text);
     }
     setState(() {
-      isLoading = false;
+      isLoading = true;
     });
+
+    try {
+      if (authType == AuthType.login) {
+        await context.read<AuthCubit>().login(
+            email: emailController.text, password: passwordController.text);
+      } else {
+        await context.read<AuthCubit>().register(
+            email: emailController.text, password: passwordController.text);
+      }
+    } catch (e) {
+      showErrorMessage(context, e.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> createFamily() async {
@@ -102,12 +102,11 @@ class _AuthScreenBodyState extends State<AuthScreenBody> {
       );
 
       if (context.mounted) {
-        // Map<String, dynamic> familyInfo = {
-        //   'familyName': family['familyName'],
-        //   'familyCode': family['familyCode'],
-        //   'familyId': family.id,
-        // };
-        String familyInfo = family.id;
+        Map<String, dynamic> familyInfo = {
+          'familyName': family['familyName'],
+          'familyCode': family['familyCode'],
+          'familyId': family.id,
+        };
 
         context.go(kHomeScreen, extra: familyInfo);
       }
@@ -169,194 +168,122 @@ class _AuthScreenBodyState extends State<AuthScreenBody> {
     super.dispose();
   }
 
+  String? initialValue;
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Padding(
-      padding: EdgeInsets.all(20),
-      child: BlocConsumer<AuthCubit, AuthState>(
-        listener: (context, state) {
-          if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(
-                state.errorMessage,
-                style: kStyle4,
+    return BlocListener<FamilycreationCubit, FamilycreationState>(
+      listener: (context, state) {
+        if (state is FamilycreationSuccess) {
+          // توجيه المستخدم مباشرة إلى الشاشة الرئيسية
+          context.go(kHomeScreen, extra: {
+            'familyName': state.familyName,
+            'familyCode': state.familyCode,
+            'familyId': state.familyId,
+          });
+        }
+      },
+      child: SafeArea(
+          child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: BlocConsumer<AuthCubit, AuthState>(
+          listener: (context, state) {
+            if (state is AuthFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                  state.errorMessage,
+                  style: kStyle4,
+                ),
+                backgroundColor: Colors.red,
+              ));
+            } else if (state is AuthSuccess) {
+              context.go(kFamilyScreen);
+            }
+          },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  Image.asset(kAppLogo,
+                      fit: BoxFit.contain, height: 200, width: 200),
+                  const SizedBox(height: 30),
+                  Form(
+                      key: formKey,
+                      child: SizedBox(
+                        height: 400,
+                        child: ListView(
+                          children: [
+                            TextFormField(
+                              controller: emailController,
+                              validator: (v) {
+                                if (v == null || v.isEmpty) {
+                                  return "Enter a valid email";
+                                }
+                                return null;
+                              },
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                  label: const Text("Email"),
+                                  suffixIcon: const Icon(Icons.email),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15))),
+                            ),
+                            const SizedBox(height: 20),
+                            TextFormField(
+                              controller: passwordController,
+                              validator: (v) {
+                                if (v == null || v.isEmpty) {
+                                  return "Enter a valid password";
+                                }
+                                return null;
+                              },
+                              textInputAction: TextInputAction.go,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                  label: const Text("Password"),
+                                  suffixIcon: const Icon(Icons.remove_red_eye),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15))),
+                            ),
+                            const SizedBox(height: 5),
+                            RichText(
+                                text: TextSpan(children: [
+                              TextSpan(
+                                  text: authType == AuthType.login
+                                      ? "Don't have an account? "
+                                      : "Have an account? "),
+                              TextSpan(
+                                  text: authType == AuthType.login
+                                      ? "Register"
+                                      : "Login",
+                                  style: kStyle4.copyWith(color: Colors.blue),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      setState(() {
+                                        authType = authType == AuthType.login
+                                            ? AuthType.register
+                                            : AuthType.login;
+                                      });
+                                    })
+                            ])),
+                            const SizedBox(height: 30),
+                            isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : ElevatedButton(
+                                    onPressed: auth,
+                                    child: Text(authType == AuthType.login
+                                        ? "Login"
+                                        : "Register"))
+                          ],
+                        ),
+                      ))
+                ],
               ),
-              backgroundColor: Colors.red,
-            ));
-          } else if (state is AuthSuccess) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return BlocConsumer<FamilycreationCubit, FamilycreationState>(
-                    listener: (context, state) {
-                      if (state is FamilycreationSuccess) {
-                        // Map<String, dynamic> familyInfo = {
-                        // 'familyName': state.familyName,
-                        // 'familyCode': state.familyCode,
-                        //   'familyId': state.familyId,
-                        // };
-                        String familyInfo = state.familyId;
-                        context.go(kHomeScreen, extra: familyInfo);
-                        print(familyInfo);
-
-                        context.go(kHomeScreen, extra: familyInfo);
-                      } else if (state is FamilycreationFalure) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(state.errorMessage),
-                          backgroundColor: Colors.red,
-                        ));
-                      }
-                    },
-                    builder: (context, state) {
-                      return StatefulBuilder(builder: (context, setState) {
-                        return AlertDialog(
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text("Join Family!!!"),
-                              Form(
-                                key: familyCodeFormKey,
-                                child: TextFormField(
-                                  controller: familyCodeController,
-                                  decoration: InputDecoration(
-                                      hintText: "Enter family code",
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                ),
-                              ),
-                              ElevatedButton(
-                                  onPressed: () async {
-                                    joinFamily();
-                                  },
-                                  child: Text("Join Family")),
-                              SizedBox(height: 30),
-                              Text("Craete a new family profile?"),
-                              Form(
-                                key: familyFormKey,
-                                child: TextFormField(
-                                  controller: familyNameController,
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty) {
-                                      return "Enter Family Name";
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                      hintText: "Enter family Name",
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                ),
-                              ),
-                              ElevatedButton(
-                                  onPressed: () async {
-                                    await createFamily();
-                                  },
-                                  child: state is FamilycreationLoading
-                                      ? Center(
-                                          child: CircularProgressIndicator(),
-                                        )
-                                      : Text("Create Family Profile")),
-                            ],
-                          ),
-                        );
-                      });
-                    },
-                  );
-                });
-            // context.go(kHomeScreen);
-          }
-        },
-        builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.asset(kAppLogo,
-                    fit: BoxFit.contain, height: 200, width: 200),
-                SizedBox(height: 30),
-                Form(
-                    key: formKey,
-                    child: SizedBox(
-                      height: 400,
-                      child: ListView(
-                        children: [
-                          TextFormField(
-                            controller: emailController,
-                            validator: (v) {
-                              if (v == null || v.isEmpty) {
-                                return "Enter a valid email";
-                              }
-                              return null;
-                            },
-                            textInputAction: TextInputAction.next,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: InputDecoration(
-                                label: Text("Email"),
-                                suffixIcon: Icon(Icons.email),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15))),
-                          ),
-                          SizedBox(height: 20),
-                          TextFormField(
-                            controller: passwordController,
-                            validator: (v) {
-                              if (v == null || v.isEmpty) {
-                                return "Enter a valid password";
-                              }
-                              return null;
-                            },
-                            textInputAction: TextInputAction.go,
-                            obscureText: true,
-                            decoration: InputDecoration(
-                                label: Text("Password"),
-                                suffixIcon: Icon(Icons.remove_red_eye),
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15))),
-                          ),
-                          SizedBox(height: 5),
-                          RichText(
-                              text: TextSpan(children: [
-                            TextSpan(
-                                text: authType == AuthType.login
-                                    ? "Don't have account "
-                                    : "Have account "),
-                            TextSpan(
-                                text: authType == AuthType.login
-                                    ? "Register"
-                                    : "Login",
-                                style: kStyle4.copyWith(color: Colors.blue),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    setState(() {
-                                      authType == AuthType.login
-                                          ? authType = AuthType.register
-                                          : authType = AuthType.login;
-                                    });
-                                  })
-                          ])),
-                          SizedBox(height: 30),
-                          isLoading
-                              ? Center(child: CircularProgressIndicator())
-                              : ElevatedButton(
-                                  onPressed: () {
-                                    auth();
-                                  },
-                                  child: isLoading
-                                      ? Center(
-                                          child: CircularProgressIndicator())
-                                      : Text(authType == AuthType.login
-                                          ? "Login"
-                                          : "Register"))
-                        ],
-                      ),
-                    ))
-              ],
-            ),
-          );
-        },
-      ),
-    ));
+            );
+          },
+        ),
+      )),
+    );
   }
 }
