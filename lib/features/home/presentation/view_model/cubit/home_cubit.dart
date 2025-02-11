@@ -25,7 +25,7 @@ class HomeCubit extends Cubit<HomeState> {
       }
 
       // 🟢 حساب إجمالي المصروفات بطريقة أفضل باستخدام fold
-      // double totalAmount =
+
       //     expenses.expenses.fold(0, (sum, expense) => sum + expense.amount!);
       double totalAmount = expenses.expenses
           .fold(0.0, (initialValue, ex) => initialValue + ex.amount);
