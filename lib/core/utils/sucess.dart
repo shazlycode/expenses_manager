@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class Success {
-  final UserCredential userCredential;
+  final User user;
 
-  Success({required this.userCredential});
+  Success({required this.user});
 }
 
 class FirebaseAuthSuccess extends Success {
-  FirebaseAuthSuccess({required super.userCredential});
+  FirebaseAuthSuccess({required super.user});
 }
 
 abstract class AddSuccess {
