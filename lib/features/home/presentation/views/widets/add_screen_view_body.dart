@@ -113,18 +113,13 @@ class _AddScreenViewBodyState extends State<AddScreenViewBody> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadBannerAd(context, adUnitBannerId).then((ad) {
-      setState(() {
-        _bannerAd = ad;
-        isLoaded = ad != null;
-      });
-    });
-    loadAd();
-    // loadInterstitialAd(adUnitId).then((ad) {
+    // loadBannerAd(context, adUnitBannerId).then((ad) {
     //   setState(() {
-    //     interstitialAd = ad;
+    //     _bannerAd = ad;
+    //     isLoaded = ad != null;
     //   });
     // });
+    // loadAd();
   }
 
   @override

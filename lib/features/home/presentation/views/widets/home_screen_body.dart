@@ -29,12 +29,12 @@ class _HomeScreenBodyState extends State<HomeScreenBody> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    loadBannerAd(context, adUnitBannerId).then((ad) {
-      setState(() {
-        _bannerAd = ad;
-        isLoaded = ad != null;
-      });
-    });
+    // loadBannerAd(context, adUnitBannerId).then((ad) {
+    //   setState(() {
+    //     _bannerAd = ad;
+    //     isLoaded = ad != null;
+    //   });
+    // });
   }
 
   @override
